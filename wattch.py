@@ -7,7 +7,8 @@ Run:  pythonw wattch.py                              (Windows, no console window
 - Left axis: percent. GPU use, memory-bandwidth use, VRAM used (% of total), fan, SM clock (% of the
   card's max SM clock) and temperature (°C, read straight off the 0-100 scale) all share it.
 - Right axis: watts, fixed at 0 .. the card's max power limit + 15% (rounded up). A dashed line marks
-  the enforced (current) power limit when it is lower than the max.
+  the enforced (current) power limit when it is lower than the max; it is re-read with every
+  sample, so it follows power-mode changes.
 - Each series has a checkbox under the graph showing its current value in the series' own color;
   untick it to hide that line.
 - Only the Python standard library (tkinter): nothing for Smart App Control to block.
@@ -22,7 +23,7 @@ import tkinter as tk
 from collections import deque
 
 FIELDS = ["utilization.gpu", "utilization.memory", "power.draw", "memory.used", "memory.total",
-          "temperature.gpu", "fan.speed", "clocks.sm", "name"]
+          "temperature.gpu", "fan.speed", "clocks.sm", "enforced.power.limit", "name"]
 BG, GRID, TEXT, DIM = "#1e1e1e", "#333333", "#d0d0d0", "#8a8a8a"
 C_W = "#ffa040"
 PAD_L, PAD_R, PAD_T, PAD_B = 48, 52, 14, 24
@@ -120,7 +121,10 @@ class Monitor:
                 for k, v in (("gpu", gpu), ("watts", w), ("mem", mem), ("vram", vram),
                              ("temp", temp), ("clock", clk_pct), ("fan", fan)):
                     self.data[k].append(v)
-                self.title.config(text=p[8])
+                lim = num(p[8])  # re-read every sample, so a power-mode change moves the dashed line
+                if lim:
+                    self.penf = lim
+                self.title.config(text=p[9])
                 txt = {
                     "gpu": f"GPU {gpu:.0f} %" if gpu is not None else "GPU n/a",
                     "watts": f"power {w:.1f} W" if w is not None else "power n/a",

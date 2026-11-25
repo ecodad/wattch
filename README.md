@@ -56,7 +56,7 @@ Example: `python wattch.py --interval 1000 --seconds 300`
 
 - Each checkbox under the graph shows that series' current value in its line color. Untick it to hide the line.
 - The **watts axis is fixed** from 0 to the card's maximum power limit + 15%, rounded up. A stray bad reading can't blow up the scale.
-- The **dashed orange line** marks the power limit currently enforced, when it's lower than the card's maximum. It's read once at startup, so restart Wattch after changing your power mode.
+- The **dashed orange line** marks the power limit currently enforced, when it's lower than the card's maximum. It's re-read with every sample, so the line moves as soon as you change your power mode.
 - Many laptops report the fan as `n/a`. The fan is controlled by the laptop, not the GPU.
 
 ## How it works
